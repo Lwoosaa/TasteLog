@@ -1,0 +1,20 @@
+# Veri dosyaları (kişisel veri GitHub'a gitmesin)
+data/raw/*.json
+data/raw/*.csv
+data/raw/*.zip
+db/*.db
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.env
+venv/
+.venv/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Streamlit
+.streamlit/secrets.toml
