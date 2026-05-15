@@ -21,7 +21,6 @@ A personal analytics tool that combines your Spotify listening history with your
 ```bash
 git clone https://github.com/Lwoosaa/TasteLog.git
 cd TasteLog
-pip install -r requirements.txt
 ```
 
 Get a free TMDB API key at [themoviedb.org](https://www.themoviedb.org/settings/api) and add it to `settings.json`:
@@ -73,8 +72,7 @@ TasteLog/
 │   └── fill_missing_keywords.py  # Retry failed keyword fetches
 ├── data/raw/                     # Raw data files (.gitignore)
 ├── db/                           # SQLite database (.gitignore)
-├── settings.json                 # API keys (.gitignore)
-└── requirements.txt
+└── settings.json                 # API keys (.gitignore)
 ```
 
 ## Notes
