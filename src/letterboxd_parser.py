@@ -4,7 +4,7 @@ from io import StringIO
 
 
 def load_letterboxd_zip(zip_path: str) -> dict[str, pd.DataFrame]:
-    """ZIP dosyasından diary ve watched CSV'lerini okur."""
+    """Reads diary.csv, watched.csv and ratings.csv from a Letterboxd export ZIP."""
     results = {}
     with zipfile.ZipFile(zip_path) as z:
         names = z.namelist()
@@ -17,7 +17,7 @@ def load_letterboxd_zip(zip_path: str) -> dict[str, pd.DataFrame]:
 
 
 def load_letterboxd_folder(folder_path: str) -> dict[str, pd.DataFrame]:
-    """Klasörden diary ve watched CSV'lerini okur."""
+    """Reads diary.csv, watched.csv and ratings.csv from a folder."""
     import os
     results = {}
     for target in ["diary.csv", "watched.csv", "ratings.csv"]:
@@ -28,7 +28,7 @@ def load_letterboxd_folder(folder_path: str) -> dict[str, pd.DataFrame]:
 
 
 def _parse_letterboxd(raw: dict) -> dict[str, pd.DataFrame]:
-    """Ham CSV'leri temizler ve birleştirir."""
+    """Cleans and normalises raw Letterboxd CSV data."""
     out = {}
 
     if "diary" in raw:

@@ -6,8 +6,8 @@ TMDB_BASE = "https://api.themoviedb.org/3"
 
 
 def init_cache_table():
-    # Creates tables if they don't exist. Uses IF NOT EXISTS so re-uploading
-    # Spotify/Letterboxd data never wipes the TMDB cache.
+    # Called on app startup. Uses CREATE TABLE IF NOT EXISTS so re-uploading
+    # Spotify/Letterboxd data (which replaces other tables) never wipes the cache.
     con = get_connection()
     con.execute("""
         CREATE TABLE IF NOT EXISTS tmdb_cache (
@@ -162,7 +162,7 @@ def get_movie_data(name: str, year: int, api_key: str) -> dict | None:
 
 
 def enrich_df(df, api_key: str, name_col: str, year_col: str) -> None:
-    # Mutates df in-place, appending TMDB Puan, Oy Sayısı, Yayın Tarihi, Tür, Keywords.
+    # Mutates df in-place, appending TMDB Score, Vote Count, Release Date, Genre, Keywords.
     ratings, votes, releases, genres, kws = [], [], [], [], []
 
     for _, row in df.iterrows():
@@ -181,8 +181,8 @@ def enrich_df(df, api_key: str, name_col: str, year_col: str) -> None:
             genres.append("")
             kws.append("")
 
-    df["TMDB Puan"]    = ratings
-    df["Oy Sayısı"]    = votes
-    df["Yayın Tarihi"] = releases
-    df["Tür"]          = genres
+    df["TMDB Score"]   = ratings
+    df["Vote Count"]   = votes
+    df["Release Date"] = releases
+    df["Genre"]        = genres
     df["Keywords"]     = kws

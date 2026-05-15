@@ -1,22 +1,22 @@
 # TasteLog 🎵🎬
 
-Spotify dinleme geçmişin ile Letterboxd film günlüğünü birleştiren kişisel analiz aracı.
+A personal analytics tool that combines your Spotify listening history with your Letterboxd film diary.
 
-## Özellikler
+## Features
 
-**Müzik analizi**
-- Haftalık / aylık / yıllık / özel tarih aralığı seçimi
-- Seçilen dönemin en çok dinlenen sanatçıları ve şarkıları (top 10, grafikli)
-- Günün saatine göre dinleme dağılımı
-- Tüm dönem için aylık dinleme trendi
-- Sanatçı, albüm ve şarkı tam sıralamaları (sınırsız, kaydırılabilir tablo)
+**Music**
+- Weekly / monthly / yearly / custom date range selection
+- Top 10 most played artists and tracks (bar charts)
+- Listening distribution by hour of day
+- All-time monthly listening trend
+- Full artist, album and track rankings (unlimited, scrollable)
 
-**Film analizi**
-- Letterboxd Diary — tarih, puan, tekrar izleme bilgisi
-- Tüm İzlenenler — diary'de olmayan filmleri de gösterir
-- TMDB entegrasyonu: kullanıcı puanı, oy sayısı, yayın tarihi, tür, keywords
+**Films**
+- Letterboxd Diary — watch date, rating, rewatch flag
+- All Watched — includes films not logged in the diary
+- TMDB enrichment: user score, vote count, release date, genres, keywords
 
-## Kurulum
+## Setup
 
 ```bash
 git clone https://github.com/Lwoosaa/TasteLog.git
@@ -24,64 +24,69 @@ cd TasteLog
 pip install -r requirements.txt
 ```
 
-**TMDB API key** için [themoviedb.org](https://www.themoviedb.org/settings/api) adresinden ücretsiz key al,
-`settings.json` dosyasına ekle:
+Get a free TMDB API key at [themoviedb.org](https://www.themoviedb.org/settings/api) and add it to `settings.json`:
 
 ```json
 {
-  "tmdb_api_key": "senin_key_buraya"
+  "tmdb_api_key": "your_key_here"
 }
 ```
 
-İsteğe bağlı olarak top 5000 filmi önceden cache'e almak için:
+Optionally pre-populate the TMDB cache with the top 5000 popular films (recommended — speeds up the film section significantly):
 
 ```bash
 python scripts/fetch_popular.py
 ```
 
-## Çalıştırma
+If any keywords were missed due to timeouts, run:
+
+```bash
+python scripts/fill_missing_keywords.py
+```
+
+## Running
 
 ```bash
 streamlit run app/main.py
 ```
 
-Tarayıcıda `http://localhost:8501` adresine git, sol menüden Spotify ve Letterboxd ZIP dosyalarını yükle.
+Go to `http://localhost:8501`, upload your Spotify and Letterboxd ZIP files from the sidebar.
 
-## Veri kaynakları
+## Data sources
 
-**Spotify:** Hesap → Gizlilik → Verilerimi İndir → Genişletilmiş Akış Geçmişi  
-**Letterboxd:** Profil → Ayarlar → Import & Export → Export Your Data
+**Spotify:** Account → Privacy → Download your data → Extended streaming history
+**Letterboxd:** Profile → Settings → Import & Export → Export your data
 
-## Proje yapısı
+## Project structure
 
 ```
 TasteLog/
 ├── app/
-│   └── main.py               # Streamlit uygulaması
+│   └── main.py                   # Streamlit app
 ├── src/
-│   ├── spotify_parser.py     # Spotify JSON → DataFrame
-│   ├── letterboxd_parser.py  # Letterboxd CSV → DataFrame
-│   ├── database.py           # SQLite sorguları (range bazlı)
-│   └── tmdb.py               # TMDB API + SQLite cache
+│   ├── spotify_parser.py         # Spotify JSON → DataFrame
+│   ├── letterboxd_parser.py      # Letterboxd CSV → DataFrame
+│   ├── database.py               # SQLite queries (range-based)
+│   └── tmdb.py                   # TMDB API client + SQLite cache
 ├── scripts/
-│   ├── fetch_popular.py      # Top 5000 filmi önceden cache'e al
-│   └── fill_missing_keywords.py  # Eksik keyword'leri tamamla
-├── data/raw/                 # Ham veriler (.gitignore'da)
-├── db/                       # SQLite veritabanı (.gitignore'da)
-├── settings.json             # API key (.gitignore'da)
+│   ├── fetch_popular.py          # Pre-populate cache with top 5000 films
+│   └── fill_missing_keywords.py  # Retry failed keyword fetches
+├── data/raw/                     # Raw data files (.gitignore)
+├── db/                           # SQLite database (.gitignore)
+├── settings.json                 # API keys (.gitignore)
 └── requirements.txt
 ```
 
-## Teknik notlar
+## Notes
 
-- 30 saniyeden kısa dinlemeler skip sayılıp filtrelenir
-- Timezone: Europe/Istanbul
-- TMDB verileri SQLite'a cache'lenir — her film için API tek sefer çağrılır
-- `add_vline` Plotly'de string eksende çalışmaz, yerine `add_scatter` kullanılır
+- Plays shorter than 30 seconds are filtered out (counted as skips)
+- All timestamps are converted to Europe/Istanbul timezone
+- TMDB data is cached in SQLite — each film is fetched from the API only once
+- `add_vline` doesn't work on string x-axes in Plotly; `add_scatter` is used instead
 
-## Planlanan özellikler
+## Planned features
 
-- Film izlediğin gün müzik korelasyonu (film × müzik zaman çizelgesi)
-- Müzik türü × film türü / keyword korelasyonu
-- Spotify API ile gerçek zamanlı veri ve tür bilgisi
-- FastAPI + React web uygulaması
+- Film × music correlation (what were you listening to when you watched a film?)
+- Music genre × film genre / keyword correlation
+- Spotify API integration for real-time data and audio features
+- FastAPI + React web app

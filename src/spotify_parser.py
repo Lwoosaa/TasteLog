@@ -7,7 +7,7 @@ from pathlib import Path
 
 
 def load_spotify_zip(zip_path: str) -> pd.DataFrame:
-    """ZIP dosyasından tüm Streaming_History_Audio_*.json dosyalarını okur."""
+    """Reads all Streaming_History_Audio_*.json files from a ZIP archive."""
     records = []
     with zipfile.ZipFile(zip_path) as z:
         json_files = [
@@ -22,7 +22,7 @@ def load_spotify_zip(zip_path: str) -> pd.DataFrame:
 
 
 def load_spotify_folder(folder_path: str) -> pd.DataFrame:
-    """Klasördeki tüm Streaming_History_Audio_*.json dosyalarını okur."""
+    """Reads all Streaming_History_Audio_*.json files from a folder."""
     records = []
     pattern = os.path.join(folder_path, "**", "Streaming_History_Audio_*.json")
     files = glob.glob(pattern, recursive=True)
@@ -33,13 +33,12 @@ def load_spotify_folder(folder_path: str) -> pd.DataFrame:
 
 
 def _parse_records(records: list) -> pd.DataFrame:
-    """Ham kayıtları temiz bir DataFrame'e dönüştürür."""
+    """Converts raw Spotify history records into a clean DataFrame."""
     df = pd.DataFrame(records)
 
-    # Sadece müzik kayıtları (podcast/video değil)
+    # Keep only music tracks — drops podcasts and videos.
     df = df[df["master_metadata_track_name"].notna()].copy()
 
-    # Sütun isimlerini sadeleştir
     df = df.rename(columns={
         "ts": "played_at",
         "master_metadata_track_name": "track",
@@ -54,7 +53,7 @@ def _parse_records(records: list) -> pd.DataFrame:
         "platform": "platform",
     })
 
-    # Tarih sütunları
+    # Convert timestamps to Istanbul timezone.
     df["played_at"] = pd.to_datetime(df["played_at"], utc=True)
     df["played_at"] = df["played_at"].dt.tz_convert("Europe/Istanbul")
     df["date"] = df["played_at"].dt.date
@@ -64,13 +63,11 @@ def _parse_records(records: list) -> pd.DataFrame:
     df["hour"] = df["played_at"].dt.hour
     df["day_of_week"] = df["played_at"].dt.day_name()
 
-    # Süre: ms → dakika
     df["minutes_played"] = (df["ms_played"] / 60000).round(2)
 
-    # 30 saniyeden az dinlemeleri filtrele (skip sayılır)
+    # Drop plays shorter than 30 seconds — these are considered skips.
     df = df[df["ms_played"] >= 30000].copy()
 
-    # Gerekli sütunları seç
     cols = [
         "played_at", "date", "year", "month", "year_month", "hour", "day_of_week",
         "track", "artist", "album", "track_uri",
